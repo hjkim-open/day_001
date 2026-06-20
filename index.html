@@ -16,10 +16,11 @@
     <meta name="theme-color" content="#2f7a4f" />
 
     <!-- Open Graph (카카오톡·인스타·문자 공유 미리보기) -->
-    <meta property="og:type" content="restaurant.restaurant" />
+    <meta property="og:type" content="website" />
     <meta property="og:title" content="모닝브루 · 망원동 동네 카페" />
     <meta property="og:description" content="망원역 2번 출구 도보 6분. 매일 아침 직접 내리는 핸드드립과 당일 구운 수제 스콘. 화~일 08:00–20:00." />
-    <meta property="og:image" content="https://day01-hjkim-opens-projects.vercel.app/og-image.svg" />
+    <meta property="og:image" content="https://day01-hjkim-opens-projects.vercel.app/og-image.png" />
+    <meta property="og:image:type" content="image/png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:url" content="https://day01-hjkim-opens-projects.vercel.app/" />
@@ -30,7 +31,7 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="모닝브루 · 망원동 동네 카페" />
     <meta name="twitter:description" content="망원역 2번 출구 도보 6분. 매일 아침 핸드드립, 당일 구운 수제 스콘." />
-    <meta name="twitter:image" content="https://day01-hjkim-opens-projects.vercel.app/og-image.svg" />
+    <meta name="twitter:image" content="https://day01-hjkim-opens-projects.vercel.app/og-image.png" />
 
     <!-- LocalBusiness 구조화 데이터 (구글 검색 영업시간·위치·전화 카드) -->
     <script type="application/ld+json">
@@ -40,15 +41,16 @@
       "name": "모닝브루",
       "description": "망원동 골목 끝의 작은 동네 카페. 매일 아침 직접 내리는 핸드드립과 당일 구운 수제 스콘.",
       "url": "https://day01-hjkim-opens-projects.vercel.app/",
-      "image": "https://day01-hjkim-opens-projects.vercel.app/og-image.svg",
-      "telephone": "+82-2-123-4567",
+      "image": "https://day01-hjkim-opens-projects.vercel.app/og-image.png",
+      "telephone": "02-123-4567",
       "priceRange": "₩3,500–₩6,000",
       "servesCuisine": ["Coffee", "Pastry"],
       "address": {
         "@type": "PostalAddress",
         "streetAddress": "망원동 골목 끝",
-        "addressLocality": "마포구",
-        "addressRegion": "서울특별시",
+        "addressLocality": "서울특별시",
+        "addressRegion": "마포구",
+        "postalCode": "04066",
         "addressCountry": "KR"
       },
       "geo": {
@@ -64,17 +66,23 @@
           "closes": "20:00"
         }
       ],
-      "sameAs": ["https://instagram.com/morningbrew_official"],
+      "sameAs": [
+        "https://instagram.com/morningbrew_official",
+        "https://www.instagram.com/morningbrew_official"
+      ],
       "menu": "https://day01-hjkim-opens-projects.vercel.app/#menu",
-      "hasMap": "https://map.naver.com/p/search/모닝브루%20망원동"
+      "hasMap": "https://www.google.com/maps/search/모닝브루+망원동"
     }
     </script>
 
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
     <link
-      rel="stylesheet"
+      rel="preload"
+      as="style"
       href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css"
+      onload="this.onload=null;this.rel='stylesheet'"
     />
+    <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" /></noscript>
     <style>
       :root {
         --bg: #fbf7f1;
@@ -116,6 +124,24 @@
         max-width: 720px;
         margin: 0 auto;
         padding: 0 20px;
+      }
+
+      /* ── Skip Nav ───────────────────────────────────── */
+      .skip-nav {
+        position: absolute;
+        top: -100px;
+        left: 16px;
+        z-index: 100;
+        padding: 8px 16px;
+        background: var(--accent);
+        color: #fff;
+        font-weight: 700;
+        font-size: 14px;
+        border-radius: 0 0 6px 6px;
+        transition: top 0.15s;
+      }
+      .skip-nav:focus {
+        top: 0;
       }
 
       /* ── Nav ────────────────────────────────────────── */
@@ -655,6 +681,7 @@
     </style>
   </head>
   <body>
+    <a href="#main-content" class="skip-nav">본문 바로가기</a>
     <header class="nav">
       <div class="container nav-inner">
         <a href="#" class="logo">모닝브루</a>
@@ -662,11 +689,11 @@
       </div>
     </header>
 
-    <main>
+    <main id="main-content">
       <!-- HERO -->
-      <section class="hero container">
+      <section class="hero container" aria-labelledby="hero-heading">
         <span class="hero-eyebrow">망원동 동네 카페</span>
-        <h1>하루를<br />차분히 내리는 곳.</h1>
+        <h1 id="hero-heading">하루를<br />차분히 내리는 곳.</h1>
         <p>매일 아침 직접 내리는 핸드드립과 당일 구운 수제 스콘.</p>
 
         <div class="hero-cta">
@@ -676,8 +703,8 @@
       </section>
 
       <!-- MENU -->
-      <section id="menu" class="container">
-        <h2 class="section-title">오늘의 메뉴</h2>
+      <section id="menu" class="container" aria-labelledby="menu-heading">
+        <h2 class="section-title" id="menu-heading">오늘의 메뉴</h2>
         <p class="section-sub">시즌 원두는 매월 바뀝니다.</p>
 
         <div class="menu-grid">
@@ -728,34 +755,34 @@
       </section>
 
       <!-- FEATURES -->
-      <section class="container">
-        <h2 class="section-title">모닝브루의 작은 약속</h2>
+      <section class="container" aria-labelledby="features-heading">
+        <h2 class="section-title" id="features-heading">모닝브루의 작은 약속</h2>
         <p class="section-sub">매일 같은 자리에서, 같은 마음으로.</p>
 
         <div class="features">
           <div class="feature">
-            <div class="feature-ico">🤲</div>
+            <div class="feature-ico" aria-hidden="true">🤲</div>
             <div class="feature-text">
               <strong>매일 아침 핸드드립</strong>
               <span>주문 후 한 잔씩 정성껏</span>
             </div>
           </div>
           <div class="feature">
-            <div class="feature-ico">🥧</div>
+            <div class="feature-ico" aria-hidden="true">🥧</div>
             <div class="feature-text">
               <strong>당일 구운 수제 스콘</strong>
               <span>전날 것은 절대 팔지 않아요</span>
             </div>
           </div>
           <div class="feature">
-            <div class="feature-ico">🪑</div>
+            <div class="feature-ico" aria-hidden="true">🪑</div>
             <div class="feature-text">
               <strong>혼자 와도 편한 1인 좌석</strong>
               <span>창가 자리에서 책 한 권 어떠세요</span>
             </div>
           </div>
           <div class="feature">
-            <div class="feature-ico">🌿</div>
+            <div class="feature-ico" aria-hidden="true">🌿</div>
             <div class="feature-text">
               <strong>골목 끝 조용한 분위기</strong>
               <span>망원역에서 도보 6분</span>
@@ -765,8 +792,8 @@
       </section>
 
       <!-- LOCATION & HOURS -->
-      <section id="location" class="container">
-        <h2 class="section-title">오시는 길 · 영업시간</h2>
+      <section id="location" class="container" aria-labelledby="location-heading">
+        <h2 class="section-title" id="location-heading">오시는 길 · 영업시간</h2>
         <p class="section-sub">월요일은 쉽니다.</p>
 
         <div class="info-card">
@@ -814,8 +841,8 @@
       </section>
 
       <!-- CONTACT CTA -->
-      <section id="contact" class="container">
-        <h2 class="section-title">예약 · 문의</h2>
+      <section id="contact" class="container" aria-labelledby="contact-heading">
+        <h2 class="section-title" id="contact-heading">예약 · 문의</h2>
         <p class="section-sub">인스타그램 DM, 전화, 또는 아래 온라인 예약으로 연락주세요.</p>
         <div class="cta-card">
           <h3>오늘 한 잔, 비워두고 기다릴게요</h3>
