@@ -804,7 +804,7 @@
           <ul class="rsv-list" id="rsv-list" aria-live="polite"></ul>
 
           <p class="rsv-note">
-            ※ 이 화면의 예약 정보는 임시 보관용입니다. 페이지를 새로고침하면 사라져요.
+            ※ 이 예약 정보는 이 기기의 브라우저에만 저장됩니다. 다른 기기·시크릿 모드에서는 보이지 않아요.
           </p>
         </div>
       </section>
@@ -821,11 +821,32 @@
       <a href="tel:02-123-4567" class="btn btn-primary">📞 전화 예약하기</a>
     </div>
 
-    <!-- 예약 관리 스크립트 (Day03 이식) -->
+    <!-- 예약 관리 스크립트 (localStorage 영구 저장) -->
     <script>
       (function () {
-        const reservations = [];
-        let nextId = 1;
+        const STORAGE_KEY = "morningbrew.reservations.home.v1";
+
+        // ─ localStorage 로드 / 저장 ─
+        function load() {
+          try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) return [];
+            const parsed = JSON.parse(raw);
+            return Array.isArray(parsed) ? parsed : [];
+          } catch {
+            return [];
+          }
+        }
+        function save() {
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(reservations));
+          } catch (e) {
+            console.warn("예약 저장 실패:", e);
+          }
+        }
+
+        let reservations = load();
+        let nextId = reservations.reduce((m, r) => Math.max(m, r.id || 0), 0) + 1;
 
         const $ = (id) => document.getElementById(id);
         const form     = $("rsv-form");
@@ -867,6 +888,7 @@
           });
           reservations.sort((a, b) => a.pickup.localeCompare(b.pickup));
 
+          save();
           render();
           form.reset();
           $("rsv-people").value = 1;
@@ -890,7 +912,17 @@
           const target = reservations[idx];
           if (!confirm(`${target.name}님(${formatTime(target.pickup)})의 예약을 삭제할까요?`)) return;
           reservations.splice(idx, 1);
+          save();
           render();
+        });
+
+        // 다른 탭에서 변경되면 자동 반영
+        window.addEventListener("storage", (e) => {
+          if (e.key === STORAGE_KEY) {
+            reservations = load();
+            nextId = reservations.reduce((m, r) => Math.max(m, r.id || 0), 0) + 1;
+            render();
+          }
         });
 
         function render() {
