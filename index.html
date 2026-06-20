@@ -3,27 +3,582 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>안녕하세요</title>
+    <meta name="description" content="망원동 골목 끝의 작은 동네 카페 모닝브루 — 매일 아침 직접 내리는 핸드드립과 당일 구운 수제 스콘." />
+    <title>모닝브루 · 망원동 동네 카페</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css"
+    />
     <style>
+      :root {
+        --bg: #fbf7f1;
+        --surface: #ffffff;
+        --ink: #1f1a16;
+        --ink-soft: #5b524b;
+        --line: #ece4d8;
+        --accent: #2f7a4f;
+        --accent-strong: #226039;
+        --brand: #6b4a2b;
+        --brand-soft: #b58a5a;
+        --warning: #c25a1f;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
       html,
       body {
-        height: 100%;
         margin: 0;
-        font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif;
+        padding: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: "Pretendard Variable", "Pretendard", -apple-system,
+          BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif;
+        font-size: 16px;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
       }
-      body {
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+
+      /* ── Nav ────────────────────────────────────────── */
+      .nav {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: rgba(251, 247, 241, 0.85);
+        backdrop-filter: saturate(140%) blur(10px);
+        -webkit-backdrop-filter: saturate(140%) blur(10px);
+        border-bottom: 1px solid var(--line);
+      }
+      .nav-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 56px;
+      }
+      .logo {
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        font-size: 18px;
+        color: var(--brand);
+      }
+      .logo::before {
+        content: "☕";
+        margin-right: 6px;
+      }
+      .nav-link {
+        font-size: 14px;
+        color: var(--ink-soft);
+        font-weight: 600;
+      }
+
+      /* ── Hero ───────────────────────────────────────── */
+      .hero {
+        padding: 56px 0 40px;
+        text-align: center;
+      }
+      .hero-eyebrow {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: #ecf5ef;
+        color: var(--accent-strong);
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+      }
+      .hero h1 {
+        margin: 18px 0 12px;
+        font-size: clamp(2.2rem, 8vw, 3.4rem);
+        line-height: 1.15;
+        letter-spacing: -0.03em;
+        font-weight: 800;
+      }
+      .hero p {
+        margin: 0 auto;
+        max-width: 28ch;
+        color: var(--ink-soft);
+        font-size: 17px;
+      }
+      .hero-cta {
+        margin-top: 28px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        height: 52px;
+        padding: 0 22px;
+        border-radius: 14px;
+        font-size: 16px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        border: 1px solid transparent;
+        cursor: pointer;
+        transition: transform 0.06s ease, background 0.15s ease,
+          border-color 0.15s ease;
+      }
+      .btn:active {
+        transform: translateY(1px);
+      }
+      .btn-primary {
+        background: var(--accent);
+        color: #fff;
+      }
+      .btn-primary:hover {
+        background: var(--accent-strong);
+      }
+      .btn-secondary {
+        background: var(--surface);
+        color: var(--ink);
+        border-color: var(--line);
+      }
+      .btn-secondary:hover {
+        border-color: var(--brand-soft);
+      }
+
+      /* ── Sections ───────────────────────────────────── */
+      section {
+        padding: 40px 0;
+      }
+      .section-title {
+        font-size: 22px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        margin: 0 0 6px;
+      }
+      .section-sub {
+        margin: 0 0 22px;
+        color: var(--ink-soft);
+        font-size: 14px;
+      }
+
+      /* ── Menu ───────────────────────────────────────── */
+      .menu-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 18px 18px;
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+      }
+      .card-emoji {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: #f4ece1;
         display: grid;
         place-items: center;
-        background: #fafafa;
-        color: #111;
+        font-size: 22px;
+        flex: 0 0 44px;
       }
-      h1 {
-        font-size: clamp(2rem, 6vw, 4rem);
+      .card-body {
+        flex: 1;
+        min-width: 0;
+      }
+      .card-title {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        align-items: baseline;
+      }
+      .card-name {
+        font-weight: 700;
+        font-size: 16px;
+        letter-spacing: -0.01em;
+      }
+      .card-price {
+        font-weight: 700;
+        color: var(--brand);
+        font-size: 15px;
+        white-space: nowrap;
+      }
+      .card-desc {
+        margin: 4px 0 0;
+        font-size: 14px;
+        color: var(--ink-soft);
+      }
+      .signature {
+        position: relative;
+      }
+      .badge {
+        display: inline-block;
+        margin-left: 6px;
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+        background: #fff1e6;
+        color: var(--warning);
+        vertical-align: 2px;
+      }
+
+      /* ── Features ───────────────────────────────────── */
+      .features {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+      .feature {
+        display: flex;
+        gap: 12px;
+        padding: 14px 16px;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+      }
+      .feature-ico {
+        font-size: 20px;
+        line-height: 1.4;
+      }
+      .feature-text strong {
+        display: block;
+        font-size: 15px;
+        letter-spacing: -0.01em;
+      }
+      .feature-text span {
+        font-size: 13px;
+        color: var(--ink-soft);
+      }
+
+      /* ── Info (Location & Hours) ────────────────────── */
+      .info-card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        padding: 20px;
+      }
+      .info-row {
+        display: flex;
+        gap: 14px;
+        padding: 14px 0;
+        border-bottom: 1px dashed var(--line);
+      }
+      .info-row:last-child {
+        border-bottom: 0;
+        padding-bottom: 0;
+      }
+      .info-row:first-child {
+        padding-top: 0;
+      }
+      .info-label {
+        flex: 0 0 64px;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--brand);
+        padding-top: 2px;
+      }
+      .info-value {
+        flex: 1;
+        font-size: 15px;
+        letter-spacing: -0.01em;
+      }
+      .info-value small {
+        display: block;
+        font-size: 13px;
+        color: var(--ink-soft);
+        margin-top: 4px;
+      }
+      .hours-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+      .hours-list li {
+        display: flex;
+        justify-content: space-between;
+        font-size: 14px;
+        padding: 3px 0;
+      }
+      .hours-list .off {
+        color: var(--warning);
+        font-weight: 700;
+      }
+
+      /* ── Contact CTA ────────────────────────────────── */
+      .cta-card {
+        background: linear-gradient(180deg, #ffffff 0%, #f5ede0 100%);
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        padding: 26px 20px;
+        text-align: center;
+      }
+      .cta-card h3 {
+        margin: 0 0 6px;
+        font-size: 20px;
         letter-spacing: -0.02em;
+      }
+      .cta-card p {
+        margin: 0 0 18px;
+        color: var(--ink-soft);
+        font-size: 14px;
+      }
+      .cta-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      /* ── Footer ─────────────────────────────────────── */
+      footer {
+        padding: 30px 0 56px;
+        text-align: center;
+        color: var(--ink-soft);
+        font-size: 13px;
+      }
+      footer .logo {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 16px;
+      }
+
+      /* ── Sticky mobile CTA ──────────────────────────── */
+      .sticky-cta {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+        background: rgba(251, 247, 241, 0.92);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-top: 1px solid var(--line);
+        z-index: 20;
+      }
+      .sticky-cta .btn {
+        width: 100%;
+        height: 50px;
+      }
+
+      body {
+        padding-bottom: 90px;
+      }
+
+      /* ── Tablet & up ────────────────────────────────── */
+      @media (min-width: 640px) {
+        .hero-cta {
+          flex-direction: row;
+          justify-content: center;
+        }
+        .hero-cta .btn {
+          min-width: 180px;
+        }
+        .menu-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+        .features {
+          grid-template-columns: 1fr 1fr;
+        }
+        .cta-buttons {
+          flex-direction: row;
+          justify-content: center;
+        }
+        .cta-buttons .btn {
+          min-width: 180px;
+        }
+        .sticky-cta {
+          display: none;
+        }
+        body {
+          padding-bottom: 0;
+        }
       }
     </style>
   </head>
   <body>
-    <h1>안녕하세요</h1>
+    <header class="nav">
+      <div class="container nav-inner">
+        <a href="#" class="logo">모닝브루</a>
+        <a href="#contact" class="nav-link">예약 · 문의</a>
+      </div>
+    </header>
+
+    <main>
+      <!-- HERO -->
+      <section class="hero container">
+        <span class="hero-eyebrow">망원동 동네 카페</span>
+        <h1>하루를<br />차분히 내리는 곳.</h1>
+        <p>매일 아침 직접 내리는 핸드드립과 당일 구운 수제 스콘.</p>
+
+        <div class="hero-cta">
+          <a href="#menu" class="btn btn-primary">메뉴 보기</a>
+          <a href="#location" class="btn btn-secondary">오시는 길</a>
+        </div>
+      </section>
+
+      <!-- MENU -->
+      <section id="menu" class="container">
+        <h2 class="section-title">오늘의 메뉴</h2>
+        <p class="section-sub">시즌 원두는 매월 바뀝니다.</p>
+
+        <div class="menu-grid">
+          <article class="card signature">
+            <div class="card-emoji">☕</div>
+            <div class="card-body">
+              <div class="card-title">
+                <span class="card-name">핸드드립 커피<span class="badge">SIGNATURE</span></span>
+                <span class="card-price">5,500원</span>
+              </div>
+              <p class="card-desc">바리스타가 한 잔씩 정성껏 내려드립니다.</p>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card-emoji">🫘</div>
+            <div class="card-body">
+              <div class="card-title">
+                <span class="card-name">오늘의 원두</span>
+                <span class="card-price">4,500원</span>
+              </div>
+              <p class="card-desc">매일 다른 싱글오리진 한 잔.</p>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card-emoji">🥐</div>
+            <div class="card-body">
+              <div class="card-title">
+                <span class="card-name">수제 스콘</span>
+                <span class="card-price">3,500원</span>
+              </div>
+              <p class="card-desc">오전에 구워 따끈할 때가 가장 맛있어요.</p>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card-emoji">🍋</div>
+            <div class="card-body">
+              <div class="card-title">
+                <span class="card-name">계절 과일 에이드</span>
+                <span class="card-price">6,000원</span>
+              </div>
+              <p class="card-desc">제철 과일로 만든 새콤한 한 잔.</p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- FEATURES -->
+      <section class="container">
+        <h2 class="section-title">모닝브루의 작은 약속</h2>
+        <p class="section-sub">매일 같은 자리에서, 같은 마음으로.</p>
+
+        <div class="features">
+          <div class="feature">
+            <div class="feature-ico">🤲</div>
+            <div class="feature-text">
+              <strong>매일 아침 핸드드립</strong>
+              <span>주문 후 한 잔씩 정성껏</span>
+            </div>
+          </div>
+          <div class="feature">
+            <div class="feature-ico">🥧</div>
+            <div class="feature-text">
+              <strong>당일 구운 수제 스콘</strong>
+              <span>전날 것은 절대 팔지 않아요</span>
+            </div>
+          </div>
+          <div class="feature">
+            <div class="feature-ico">🪑</div>
+            <div class="feature-text">
+              <strong>혼자 와도 편한 1인 좌석</strong>
+              <span>창가 자리에서 책 한 권 어떠세요</span>
+            </div>
+          </div>
+          <div class="feature">
+            <div class="feature-ico">🌿</div>
+            <div class="feature-text">
+              <strong>골목 끝 조용한 분위기</strong>
+              <span>망원역에서 도보 6분</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- LOCATION & HOURS -->
+      <section id="location" class="container">
+        <h2 class="section-title">오시는 길 · 영업시간</h2>
+        <p class="section-sub">월요일은 쉽니다.</p>
+
+        <div class="info-card">
+          <div class="info-row">
+            <div class="info-label">📍 위치</div>
+            <div class="info-value">
+              서울 마포구 망원동 골목 끝
+              <small>망원역 2번 출구에서 도보 6분</small>
+            </div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">🕐 시간</div>
+            <div class="info-value">
+              <ul class="hours-list">
+                <li><span>화요일 ~ 일요일</span><span>08:00 – 20:00</span></li>
+                <li><span>월요일</span><span class="off">정기 휴무</span></li>
+              </ul>
+            </div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">📞 연락</div>
+            <div class="info-value">
+              <a href="tel:02-123-4567">02-123-4567</a>
+              <small>전화 예약은 영업시간 내에 받아요</small>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CONTACT CTA -->
+      <section id="contact" class="container">
+        <div class="cta-card">
+          <h3>오늘 한 잔, 비워두고 기다릴게요</h3>
+          <p>자리 예약·메뉴 문의는 인스타그램 DM 또는 전화로.</p>
+          <div class="cta-buttons">
+            <a
+              href="https://instagram.com/morningbrew_official"
+              target="_blank"
+              rel="noopener"
+              class="btn btn-primary"
+              >@morningbrew_official</a
+            >
+            <a href="tel:02-123-4567" class="btn btn-secondary">전화 예약</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="container">
+      <span class="logo">모닝브루</span>
+      서울 마포구 망원동 · 02-123-4567<br />
+      © 2026 Morning Brew. All rights reserved.
+    </footer>
+
+    <!-- Mobile sticky CTA -->
+    <div class="sticky-cta">
+      <a href="tel:02-123-4567" class="btn btn-primary">📞 전화 예약하기</a>
+    </div>
   </body>
 </html>
