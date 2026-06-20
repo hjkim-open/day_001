@@ -378,6 +378,186 @@
         padding-bottom: 90px;
       }
 
+      /* ── Reservation (Day03 기능 이식) ─────────────── */
+      .rsv-card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        padding: 22px;
+      }
+      .rsv-field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-bottom: 14px;
+      }
+      .rsv-field label {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--ink);
+        letter-spacing: -0.01em;
+      }
+      .rsv-field label .req {
+        color: var(--warning);
+        margin-left: 2px;
+      }
+      .rsv-field input {
+        height: 46px;
+        padding: 0 14px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: #fff;
+        font-size: 15px;
+        font-family: inherit;
+        color: var(--ink);
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      }
+      .rsv-field input:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 4px #ecf5ef;
+      }
+      .rsv-field input::placeholder { color: #b3a99c; }
+      .rsv-row-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .rsv-error {
+        margin: 6px 0 12px;
+        padding: 10px 12px;
+        background: #fdecea;
+        color: #c14a3a;
+        border-radius: 10px;
+        font-size: 13px;
+        display: none;
+      }
+      .rsv-error.show { display: block; }
+      .rsv-success {
+        margin: 6px 0 12px;
+        padding: 10px 12px;
+        background: #ecf5ef;
+        color: var(--accent-strong);
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 700;
+        display: none;
+      }
+      .rsv-success.show { display: block; }
+      .rsv-list-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin: 20px 0 12px;
+      }
+      .rsv-list-title {
+        font-size: 15px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+      }
+      .rsv-count {
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: #ecf5ef;
+        color: var(--accent-strong);
+        font-size: 12px;
+        font-weight: 700;
+      }
+      ul.rsv-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .rsv-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px;
+        background: #fdfaf4;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+      }
+      .rsv-time {
+        flex: 0 0 auto;
+        min-width: 70px;
+        padding: 10px 8px;
+        border-radius: 12px;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        text-align: center;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        color: var(--brand);
+        font-size: 14px;
+      }
+      .rsv-time small {
+        display: block;
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--ink-soft);
+        margin-bottom: 2px;
+      }
+      .rsv-meta { flex: 1; min-width: 0; }
+      .rsv-meta-line {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .rsv-name {
+        font-weight: 700;
+        font-size: 15px;
+        letter-spacing: -0.01em;
+      }
+      .rsv-people {
+        font-size: 12px;
+        color: var(--ink-soft);
+        font-weight: 600;
+      }
+      .rsv-phone {
+        margin-top: 2px;
+        font-size: 13px;
+        color: var(--ink-soft);
+      }
+      .rsv-delete {
+        background: transparent;
+        color: #c14a3a;
+        border: 0;
+        padding: 6px 12px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 700;
+        font-family: inherit;
+        cursor: pointer;
+        transition: background 0.15s ease;
+      }
+      .rsv-delete:hover { background: #fdecea; }
+      .rsv-empty {
+        text-align: center;
+        padding: 28px 16px;
+        color: var(--ink-soft);
+        border: 1px dashed var(--line);
+        border-radius: 14px;
+        background: #fdfaf4;
+      }
+      .rsv-empty-emoji { font-size: 28px; margin-bottom: 6px; }
+      .rsv-empty-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--ink);
+        margin-bottom: 2px;
+      }
+      .rsv-empty-sub { font-size: 13px; }
+      .rsv-note {
+        margin-top: 12px;
+        font-size: 12px;
+        color: var(--ink-soft);
+        text-align: center;
+      }
+
       /* ── Tablet & up ────────────────────────────────── */
       @media (min-width: 640px) {
         .hero-cta {
@@ -567,6 +747,66 @@
             <a href="tel:02-123-4567" class="btn btn-secondary">전화 예약</a>
           </div>
         </div>
+
+        <!-- 온라인 예약 폼 -->
+        <div class="rsv-card" style="margin-top:20px" aria-labelledby="rsv-title">
+          <h3 class="section-title" id="rsv-title" style="margin:0 0 6px">온라인 예약</h3>
+          <p class="section-sub" style="margin:0 0 18px">픽업 시간과 인원을 알려주시면, 시간에 맞춰 준비해 둘게요.</p>
+
+          <form id="rsv-form" novalidate>
+            <div class="rsv-field">
+              <label for="rsv-name">이름<span class="req">*</span></label>
+              <input type="text" id="rsv-name" name="name" placeholder="예: 김민지" maxlength="20" required />
+            </div>
+
+            <div class="rsv-field">
+              <label for="rsv-phone">연락처<span class="req">*</span></label>
+              <input
+                type="tel"
+                id="rsv-phone"
+                name="phone"
+                placeholder="예: 010-1234-5678"
+                inputmode="tel"
+                pattern="[0-9\-\s]{7,}"
+                maxlength="20"
+                required
+              />
+            </div>
+
+            <div class="rsv-row-2">
+              <div class="rsv-field">
+                <label for="rsv-pickup">픽업 시간<span class="req">*</span></label>
+                <input type="time" id="rsv-pickup" name="pickup" required />
+              </div>
+              <div class="rsv-field">
+                <label for="rsv-people">인원수<span class="req">*</span></label>
+                <input type="number" id="rsv-people" name="people" min="1" max="20" value="1" required />
+              </div>
+            </div>
+
+            <p class="rsv-error" id="rsv-error" role="alert"></p>
+            <p class="rsv-success" id="rsv-success" role="status">예약이 추가되었어요! 시간에 맞춰 준비해 둘게요. ☕</p>
+
+            <button type="submit" class="btn btn-primary" style="width:100%">+ 예약 추가</button>
+          </form>
+
+          <div class="rsv-list-head">
+            <span class="rsv-list-title">내 예약</span>
+            <span class="rsv-count" id="rsv-count">0건</span>
+          </div>
+
+          <div id="rsv-empty" class="rsv-empty">
+            <div class="rsv-empty-emoji">☕</div>
+            <div class="rsv-empty-title">아직 예약이 없습니다.</div>
+            <div class="rsv-empty-sub">첫 예약을 추가해 보세요!</div>
+          </div>
+
+          <ul class="rsv-list" id="rsv-list" aria-live="polite"></ul>
+
+          <p class="rsv-note">
+            ※ 이 화면의 예약 정보는 임시 보관용입니다. 페이지를 새로고침하면 사라져요.
+          </p>
+        </div>
       </section>
     </main>
 
@@ -580,5 +820,122 @@
     <div class="sticky-cta">
       <a href="tel:02-123-4567" class="btn btn-primary">📞 전화 예약하기</a>
     </div>
+
+    <!-- 예약 관리 스크립트 (Day03 이식) -->
+    <script>
+      (function () {
+        const reservations = [];
+        let nextId = 1;
+
+        const $ = (id) => document.getElementById(id);
+        const form     = $("rsv-form");
+        const listEl   = $("rsv-list");
+        const emptyEl  = $("rsv-empty");
+        const countEl  = $("rsv-count");
+        const errorEl  = $("rsv-error");
+        const successEl = $("rsv-success");
+
+        // 픽업 시간 기본값: 현재 시각 + 30분
+        function setDefaultPickup() {
+          const t = new Date(Date.now() + 30 * 60 * 1000);
+          $("rsv-pickup").value =
+            `${String(t.getHours()).padStart(2,"0")}:${String(t.getMinutes()).padStart(2,"0")}`;
+        }
+        setDefaultPickup();
+
+        form.addEventListener("submit", (e) => {
+          e.preventDefault();
+          errorEl.classList.remove("show");
+          successEl.classList.remove("show");
+
+          const name   = $("rsv-name").value.trim();
+          const phone  = $("rsv-phone").value.trim();
+          const pickup = $("rsv-pickup").value;
+          const people = parseInt($("rsv-people").value, 10);
+
+          if (!name) return showError("이름을 입력해 주세요.");
+          if (!phone || !/^[0-9\-\s]{7,}$/.test(phone))
+            return showError("연락처를 정확히 입력해 주세요.");
+          if (!pickup) return showError("픽업 시간을 선택해 주세요.");
+          if (!people || people < 1 || people > 20)
+            return showError("인원수는 1~20명 사이로 입력해 주세요.");
+
+          reservations.push({
+            id: nextId++,
+            name, phone, pickup, people,
+            createdAt: Date.now(),
+          });
+          reservations.sort((a, b) => a.pickup.localeCompare(b.pickup));
+
+          render();
+          form.reset();
+          $("rsv-people").value = 1;
+          setDefaultPickup();
+          successEl.classList.add("show");
+          setTimeout(() => successEl.classList.remove("show"), 3000);
+          $("rsv-name").focus();
+        });
+
+        function showError(msg) {
+          errorEl.textContent = msg;
+          errorEl.classList.add("show");
+        }
+
+        listEl.addEventListener("click", (e) => {
+          const btn = e.target.closest("button[data-action='delete']");
+          if (!btn) return;
+          const id = Number(btn.dataset.id);
+          const idx = reservations.findIndex((r) => r.id === id);
+          if (idx === -1) return;
+          const target = reservations[idx];
+          if (!confirm(`${target.name}님(${formatTime(target.pickup)})의 예약을 삭제할까요?`)) return;
+          reservations.splice(idx, 1);
+          render();
+        });
+
+        function render() {
+          countEl.textContent = `${reservations.length}건`;
+          if (reservations.length === 0) {
+            emptyEl.style.display = "block";
+            listEl.innerHTML = "";
+            return;
+          }
+          emptyEl.style.display = "none";
+          listEl.innerHTML = reservations.map((r) => `
+            <li class="rsv-item">
+              <div class="rsv-time"><small>PICKUP</small>${escapeHtml(formatTime(r.pickup))}</div>
+              <div class="rsv-meta">
+                <div class="rsv-meta-line">
+                  <span class="rsv-name">${escapeHtml(r.name)}</span>
+                  <span class="rsv-people">${r.people}명</span>
+                </div>
+                <div class="rsv-phone">${escapeHtml(r.phone)}</div>
+              </div>
+              <button type="button" class="rsv-delete" data-action="delete" data-id="${r.id}" aria-label="${escapeHtml(r.name)}님 예약 삭제">삭제</button>
+            </li>`).join("");
+        }
+
+        function formatTime(hhmm) {
+          if (!hhmm) return "";
+          const [hStr, mStr] = hhmm.split(":");
+          const h = Number(hStr);
+          const m = Number(mStr);
+          const period = h < 12 ? "오전" : "오후";
+          const h12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
+          return `${period} ${h12}:${String(m).padStart(2, "0")}`;
+        }
+
+        function escapeHtml(str) {
+          return String(str)
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#39;");
+        }
+
+        render();
+      })();
+    </script>
   </body>
 </html>
