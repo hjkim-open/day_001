@@ -3,8 +3,73 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="망원동 골목 끝의 작은 동네 카페 모닝브루 — 매일 아침 직접 내리는 핸드드립과 당일 구운 수제 스콘." />
+    <meta name="description" content="망원역 2번 출구 도보 6분 · 화~일 08:00–20:00 · 매일 아침 직접 내리는 핸드드립과 당일 구운 수제 스콘. 망원동 골목 끝의 작은 동네 카페 모닝브루." />
     <title>모닝브루 · 망원동 동네 카페</title>
+
+    <!-- 기술 SEO -->
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <link rel="canonical" href="https://day01-hjkim-opens-projects.vercel.app/" />
+
+    <!-- Favicon & 앱 아이콘 -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <meta name="theme-color" content="#2f7a4f" />
+
+    <!-- Open Graph (카카오톡·인스타·문자 공유 미리보기) -->
+    <meta property="og:type" content="restaurant.restaurant" />
+    <meta property="og:title" content="모닝브루 · 망원동 동네 카페" />
+    <meta property="og:description" content="망원역 2번 출구 도보 6분. 매일 아침 직접 내리는 핸드드립과 당일 구운 수제 스콘. 화~일 08:00–20:00." />
+    <meta property="og:image" content="https://day01-hjkim-opens-projects.vercel.app/og-image.svg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:url" content="https://day01-hjkim-opens-projects.vercel.app/" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:site_name" content="모닝브루" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="모닝브루 · 망원동 동네 카페" />
+    <meta name="twitter:description" content="망원역 2번 출구 도보 6분. 매일 아침 핸드드립, 당일 구운 수제 스콘." />
+    <meta name="twitter:image" content="https://day01-hjkim-opens-projects.vercel.app/og-image.svg" />
+
+    <!-- LocalBusiness 구조화 데이터 (구글 검색 영업시간·위치·전화 카드) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "CafeOrCoffeeShop",
+      "name": "모닝브루",
+      "description": "망원동 골목 끝의 작은 동네 카페. 매일 아침 직접 내리는 핸드드립과 당일 구운 수제 스콘.",
+      "url": "https://day01-hjkim-opens-projects.vercel.app/",
+      "image": "https://day01-hjkim-opens-projects.vercel.app/og-image.svg",
+      "telephone": "+82-2-123-4567",
+      "priceRange": "₩3,500–₩6,000",
+      "servesCuisine": ["Coffee", "Pastry"],
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "망원동 골목 끝",
+        "addressLocality": "마포구",
+        "addressRegion": "서울특별시",
+        "addressCountry": "KR"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 37.5559,
+        "longitude": 126.9028
+      },
+      "openingHoursSpecification": [
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": ["Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
+          "opens": "08:00",
+          "closes": "20:00"
+        }
+      ],
+      "sameAs": ["https://instagram.com/morningbrew_official"],
+      "menu": "https://day01-hjkim-opens-projects.vercel.app/#menu",
+      "hasMap": "https://map.naver.com/p/search/모닝브루%20망원동"
+    }
+    </script>
+
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
     <link
       rel="stylesheet"
@@ -728,11 +793,30 @@
               <small>전화 예약은 영업시간 내에 받아요</small>
             </div>
           </div>
+          <div class="info-row">
+            <div class="info-label">🗺 지도</div>
+            <div class="info-value" style="display:flex;gap:8px;flex-wrap:wrap">
+              <a href="https://map.naver.com/p/search/모닝브루%20망원동" target="_blank" rel="noopener"
+                 style="display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border:1px solid var(--line);border-radius:8px;font-size:13px;font-weight:700;background:#fff;color:var(--ink)">
+                🟢 네이버지도
+              </a>
+              <a href="https://map.kakao.com/?q=모닝브루%20망원동" target="_blank" rel="noopener"
+                 style="display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border:1px solid var(--line);border-radius:8px;font-size:13px;font-weight:700;background:#fff;color:var(--ink)">
+                🟡 카카오맵
+              </a>
+              <a href="https://www.google.com/maps/search/모닝브루+망원동" target="_blank" rel="noopener"
+                 style="display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border:1px solid var(--line);border-radius:8px;font-size:13px;font-weight:700;background:#fff;color:var(--ink)">
+                🔵 구글맵
+              </a>
+            </div>
+          </div>
         </div>
       </section>
 
       <!-- CONTACT CTA -->
       <section id="contact" class="container">
+        <h2 class="section-title">예약 · 문의</h2>
+        <p class="section-sub">인스타그램 DM, 전화, 또는 아래 온라인 예약으로 연락주세요.</p>
         <div class="cta-card">
           <h3>오늘 한 잔, 비워두고 기다릴게요</h3>
           <p>자리 예약·메뉴 문의는 인스타그램 DM 또는 전화로.</p>

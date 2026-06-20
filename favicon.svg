@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <rect width="64" height="64" rx="14" fill="#2f7a4f"/>
+  <!-- 컵 몸통 -->
+  <rect x="16" y="28" width="26" height="18" rx="3" fill="#fff"/>
+  <!-- 컵 손잡이 -->
+  <path d="M42 33 Q54 33 54 42 Q54 46 42 46" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <!-- 받침 -->
+  <rect x="12" y="46" width="34" height="3" rx="1.5" fill="#fff"/>
+  <!-- 커피 -->
+  <rect x="19" y="31" width="20" height="12" rx="2" fill="#6b4a2b"/>
+  <!-- 김 -->
+  <path d="M22 24 Q24 20 22 16" stroke="#ecf5ef" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M29 24 Q31 19 29 15" stroke="#ecf5ef" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M36 24 Q38 20 36 16" stroke="#ecf5ef" stroke-width="2" fill="none" stroke-linecap="round"/>
+</svg>

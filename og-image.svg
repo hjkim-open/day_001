@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <!-- 배경 -->
+  <rect width="1200" height="630" fill="#fbf7f1"/>
+  <!-- 왼쪽 그린 사이드바 -->
+  <rect x="0" y="0" width="12" height="630" fill="#2f7a4f"/>
+
+  <!-- 커피잔 (왼쪽 장식) -->
+  <g transform="translate(100, 180)">
+    <rect x="0" y="60" width="140" height="100" rx="12" fill="#fff" stroke="#ece4d8" stroke-width="2"/>
+    <path d="M140 80 Q200 80 200 130 Q200 160 140 160" stroke="#ece4d8" stroke-width="8" fill="none" stroke-linecap="round"/>
+    <rect x="-20" y="160" width="180" height="16" rx="8" fill="#ece4d8"/>
+    <rect x="12" y="72" width="116" height="80" rx="8" fill="#6b4a2b" opacity="0.85"/>
+    <path d="M30 50 Q44 20 30 0" stroke="#b58a5a" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <path d="M70 48 Q84 16 70 -4" stroke="#b58a5a" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <path d="M110 50 Q124 20 110 0" stroke="#b58a5a" stroke-width="5" fill="none" stroke-linecap="round"/>
+  </g>
+
+  <!-- 가게 이름 -->
+  <text x="400" y="220" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif"
+        font-size="96" font-weight="800" fill="#1f1a16" letter-spacing="-3">모닝브루</text>
+
+  <!-- 구분선 -->
+  <rect x="400" y="250" width="720" height="3" rx="1.5" fill="#ece4d8"/>
+
+  <!-- 태그라인 -->
+  <text x="400" y="330" font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif"
+        font-size="38" font-weight="400" fill="#5b524b" letter-spacing="-0.5">망원동 골목 끝의 작은 동네 카페</text>
+
+  <!-- 뱃지들 -->
+  <rect x="400" y="380" width="230" height="54" rx="27" fill="#ecf5ef"/>
+  <text x="515" y="414" font-family="'Apple SD Gothic Neo','Malgun Gothic',sans-serif"
+        font-size="24" font-weight="700" fill="#226039" text-anchor="middle">매일 아침 핸드드립</text>
+
+  <rect x="646" y="380" width="196" height="54" rx="27" fill="#f4ece1"/>
+  <text x="744" y="414" font-family="'Apple SD Gothic Neo','Malgun Gothic',sans-serif"
+        font-size="24" font-weight="700" fill="#6b4a2b" text-anchor="middle">당일 구운 스콘</text>
+
+  <rect x="858" y="380" width="224" height="54" rx="27" fill="#ecf5ef"/>
+  <text x="970" y="414" font-family="'Apple SD Gothic Neo','Malgun Gothic',sans-serif"
+        font-size="24" font-weight="700" fill="#226039" text-anchor="middle">1인 좌석 완비</text>
+
+  <!-- 운영 정보 -->
+  <text x="400" y="510" font-family="'Apple SD Gothic Neo','Malgun Gothic',sans-serif"
+        font-size="28" font-weight="600" fill="#5b524b">📍 망원역 2번 출구 도보 6분</text>
+  <text x="400" y="560" font-family="'Apple SD Gothic Neo','Malgun Gothic',sans-serif"
+        font-size="28" font-weight="600" fill="#5b524b">🕐 화~일 08:00 – 20:00</text>
+
+  <!-- 우하단 로고 워드마크 -->
+  <text x="1140" y="600" font-family="'Apple SD Gothic Neo','Malgun Gothic',sans-serif"
+        font-size="22" font-weight="800" fill="#b58a5a" text-anchor="end">Morning Brew ☕</text>
+</svg>
