@@ -428,7 +428,7 @@
 
     <script>
       // ─────────────────────────────────────────────────
-      // Supabase 클라이언트
+      // Supabase 클라이언트 (백업용)
       // ─────────────────────────────────────────────────
       let sb = null;
       try {
@@ -437,12 +437,34 @@
           "https://uzrnemzcmfysdmvzxycb.supabase.co",
           "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV6cm5lbXpjbWZ5c2Rtdnp4eWNiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5ODQ1MjksImV4cCI6MjA5NzU2MDUyOX0.1l_-u5_4JOWKUczEC9NGp7GzFEyQ4wCOCo_Zp26S-b4"
         );
-        console.log("✅ Supabase 클라이언트 초기화 성공");
       } catch (err) {
-        console.error("❌ Supabase 초기화 실패:", err);
+        console.error("Supabase 초기화 실패:", err);
       }
 
-      let reservations = [];
+      // ─────────────────────────────────────────────────
+      // 로컬스토리지 (주 저장소)
+      // ─────────────────────────────────────────────────
+      const STORAGE_KEY = "morningbrew.reservations.day03.v1";
+
+      function loadLocal() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return [];
+          const parsed = JSON.parse(raw);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch { return []; }
+      }
+
+      function saveLocal() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(reservations));
+        } catch (e) {
+          console.warn("로컬 저장 실패:", e);
+        }
+      }
+
+      let reservations = loadLocal();
+      let nextId = reservations.reduce((m, r) => Math.max(m, r.id || 0), 0) + 1;
 
       const $ = (id) => document.getElementById(id);
       const form      = $("form");
@@ -452,7 +474,7 @@
       const errorEl   = $("error");
       const submitBtn = form.querySelector('button[type="submit"]');
 
-      // 오늘 날짜 표시
+      // ── 오늘 날짜 표시 ──────────────────────────────
       const now = new Date();
       const weekday = ["일", "월", "화", "수", "목", "금", "토"][now.getDay()];
       $("today").textContent =
@@ -463,83 +485,78 @@
       $("pickup").value =
         `${String(defaultTime.getHours()).padStart(2,"0")}:${String(defaultTime.getMinutes()).padStart(2,"0")}`;
 
-      // ── DB 배지 업데이트 ────────────────────────────
+      // ── DB 배지 ─────────────────────────────────────
       const dbBadge = $("db-badge");
       function setDbBadge(ok, label) {
         dbBadge.textContent = label;
         dbBadge.className = "db-badge" + (ok ? "" : " error");
       }
+      setDbBadge(!!sb, sb ? "Supabase 연결됨" : "Supabase 오프라인");
 
-      if (!sb) {
-        setDbBadge(false, "DB 연결 실패");
-      }
+      // ── Supabase 비동기 백업 ─────────────────────────
+      async function backupToSupabase(record) {
+        if (!sb) return;
+        setDbBadge(true, "백업 중…");
+        try {
+          const { data, error } = await sb
+            .from("reservations")
+            .insert({ name: record.name, phone: record.phone, time: record.pickup, count: record.people })
+            .select("id")
+            .single();
 
-      // ── 예약 목록 로드 ──────────────────────────────
-      async function loadReservations() {
-        if (!sb) { render(); return; }
-
-        const { data, error } = await sb
-          .from("reservations")
-          .select("*")
-          .order("time", { ascending: true });
-
-        if (error) {
-          console.warn("예약 로드 오류:", error.message);
-          setDbBadge(false, "DB 오류: " + error.message);
-          reservations = [];
-        } else {
-          setDbBadge(true, "Supabase 연결됨");
-          reservations = data || [];
+          if (error) {
+            console.warn("Supabase 백업 실패:", error.message);
+            setDbBadge(false, "백업 실패");
+          } else {
+            const idx = reservations.findIndex((r) => r.id === record.id);
+            if (idx !== -1) {
+              reservations[idx].supabaseId = data.id;
+              saveLocal();
+            }
+            setDbBadge(true, "백업 완료 ✓");
+          }
+        } catch (err) {
+          console.error("Supabase 백업 오류:", err);
+          setDbBadge(false, "백업 실패");
         }
-        render();
       }
 
-      // ── 폼 제출 → Supabase INSERT ───────────────────
-      form.addEventListener("submit", async (e) => {
+      async function deleteFromSupabase(supabaseId) {
+        if (!sb || !supabaseId) return;
+        try {
+          await sb.from("reservations").delete().eq("id", supabaseId);
+        } catch (err) {
+          console.warn("Supabase 삭제 오류:", err);
+        }
+      }
+
+      // ── 폼 제출 → 로컬 저장 후 Supabase 백업 ────────
+      form.addEventListener("submit", (e) => {
         e.preventDefault();
         errorEl.classList.remove("show");
 
-        if (!sb) {
-          showError("Supabase 연결 실패 — 페이지를 새로고침(Ctrl+Shift+R)해 주세요.");
-          return;
-        }
-
         const name   = $("name").value.trim();
         const phone  = $("phone").value.trim();
-        const time   = $("pickup").value;
-        const count  = parseInt($("people").value, 10);
+        const pickup = $("pickup").value;
+        const people = parseInt($("people").value, 10);
 
         if (!name) return showError("이름을 입력해 주세요.");
         if (!phone || !/^[0-9\-\s]{7,}$/.test(phone))
           return showError("연락처를 정확히 입력해 주세요.");
-        if (!time) return showError("픽업 시간을 선택해 주세요.");
-        if (!count || count < 1 || count > 20)
+        if (!pickup) return showError("픽업 시간을 선택해 주세요.");
+        if (!people || people < 1 || people > 20)
           return showError("인원수는 1~20명 사이로 입력해 주세요.");
 
-        submitBtn.disabled = true;
-        submitBtn.textContent = "저장 중…";
-        console.log("📤 INSERT 시도:", { name, phone, time, count });
-
-        const { data, error } = await sb
-          .from("reservations")
-          .insert({ name, phone, time, count })
-          .select()
-          .single();
-
-        submitBtn.disabled = false;
-        submitBtn.textContent = "+ 예약 추가";
-
-        if (error) {
-          console.error("❌ INSERT 실패:", error);
-          showError("저장 실패: " + error.message);
-          setDbBadge(false, "저장 실패: " + error.message);
-          return;
-        }
-        console.log("✅ INSERT 성공:", data);
-
-        reservations.push(data);
-        reservations.sort((a, b) => a.time.localeCompare(b.time));
+        // 1. 로컬에 즉시 저장
+        const newRecord = { id: nextId++, name, phone, pickup, people, createdAt: Date.now() };
+        reservations.push(newRecord);
+        reservations.sort((a, b) => a.pickup.localeCompare(b.pickup));
+        saveLocal();
         render();
+
+        // 2. Supabase 백업 (비동기 — 실패해도 로컬은 유지)
+        backupToSupabase(newRecord);
+
         form.reset();
         $("people").value = 1;
         const t = new Date(Date.now() + 30 * 60 * 1000);
@@ -553,28 +570,32 @@
         errorEl.classList.add("show");
       }
 
-      // ── 삭제 → Supabase DELETE ──────────────────────
-      listEl.addEventListener("click", async (e) => {
+      // ── 삭제 → 로컬 삭제 후 Supabase 삭제 ──────────
+      listEl.addEventListener("click", (e) => {
         const btn = e.target.closest("button[data-action='delete']");
         if (!btn) return;
-        const id = btn.dataset.id;
-        const target = reservations.find((r) => r.id === id);
-        if (!target) return;
+        const id = Number(btn.dataset.id);
+        const idx = reservations.findIndex((r) => r.id === id);
+        if (idx === -1) return;
 
-        if (!confirm(`${target.name}님(${formatTime(target.time)})의 예약을 삭제할까요?`)) return;
+        const target = reservations[idx];
+        if (!confirm(`${target.name}님(${formatTime(target.pickup)})의 예약을 삭제할까요?`)) return;
 
-        const { error } = await sb
-          .from("reservations")
-          .delete()
-          .eq("id", id);
-
-        if (error) {
-          alert("삭제 실패: " + error.message);
-          return;
-        }
-
-        reservations = reservations.filter((r) => r.id !== id);
+        const supabaseId = target.supabaseId;
+        reservations.splice(idx, 1);
+        saveLocal();
         render();
+
+        deleteFromSupabase(supabaseId);
+      });
+
+      // 다른 탭에서 변경 시 자동 반영
+      window.addEventListener("storage", (e) => {
+        if (e.key === STORAGE_KEY) {
+          reservations = loadLocal();
+          nextId = reservations.reduce((m, r) => Math.max(m, r.id || 0), 0) + 1;
+          render();
+        }
       });
 
       // ── 렌더링 ──────────────────────────────────────
@@ -589,28 +610,26 @@
         emptyEl.style.display = "none";
 
         listEl.innerHTML = reservations
-          .map(
-            (r) => `
-              <li class="item">
-                <div class="time-chip" aria-label="픽업 시간 ${escapeHtml(r.time)}">
-                  <small>PICKUP</small>${escapeHtml(formatTime(r.time))}
+          .map((r) => `
+            <li class="item">
+              <div class="time-chip" aria-label="픽업 시간 ${escapeHtml(r.pickup)}">
+                <small>PICKUP</small>${escapeHtml(formatTime(r.pickup))}
+              </div>
+              <div class="meta">
+                <div class="meta-line1">
+                  <span class="name">${escapeHtml(r.name)}</span>
+                  <span class="people">${r.people}명</span>
                 </div>
-                <div class="meta">
-                  <div class="meta-line1">
-                    <span class="name">${escapeHtml(r.name)}</span>
-                    <span class="people">${r.count}명</span>
-                  </div>
-                  <div class="phone">${escapeHtml(r.phone)}</div>
-                </div>
-                <button
-                  type="button"
-                  class="btn btn-ghost"
-                  data-action="delete"
-                  data-id="${r.id}"
-                  aria-label="${escapeHtml(r.name)}님 예약 삭제"
-                >삭제</button>
-              </li>`
-          )
+                <div class="phone">${escapeHtml(r.phone)}</div>
+              </div>
+              <button
+                type="button"
+                class="btn btn-ghost"
+                data-action="delete"
+                data-id="${r.id}"
+                aria-label="${escapeHtml(r.name)}님 예약 삭제"
+              >삭제</button>
+            </li>`)
           .join("");
       }
 
@@ -633,8 +652,8 @@
           .replaceAll("'", "&#39;");
       }
 
-      // 초기 로드
-      loadReservations();
+      // 초기 렌더 (로컬 데이터로 즉시 표시)
+      render();
     </script>
   </body>
 </html>
