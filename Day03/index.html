@@ -10,6 +10,7 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css"
     />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <style>
       :root {
         --bg: #fbf7f1;
@@ -412,37 +413,23 @@
 
     <script>
       // ─────────────────────────────────────────────────
-      // 데이터: localStorage 영구 저장
+      // Supabase 클라이언트
       // ─────────────────────────────────────────────────
-      const STORAGE_KEY = "morningbrew.reservations.day03.v1";
+      const { createClient } = supabase;
+      const sb = createClient(
+        "https://uzrnemzcmfysdmvzxycb.supabase.co",
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV6cm5lbXpjbWZ5c2Rtdnp4eWNiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5ODQ1MjksImV4cCI6MjA5NzU2MDUyOX0.1l_-u5_4JOWKUczEC9NGp7GzFEyQ4wCOCo_Zp26S-b4"
+      );
 
-      function load() {
-        try {
-          const raw = localStorage.getItem(STORAGE_KEY);
-          if (!raw) return [];
-          const parsed = JSON.parse(raw);
-          return Array.isArray(parsed) ? parsed : [];
-        } catch {
-          return [];
-        }
-      }
-      function save() {
-        try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(reservations));
-        } catch (e) {
-          console.warn("예약 저장 실패:", e);
-        }
-      }
-
-      let reservations = load();
-      let nextId = reservations.reduce((m, r) => Math.max(m, r.id || 0), 0) + 1;
+      let reservations = [];
 
       const $ = (id) => document.getElementById(id);
-      const form    = $("form");
-      const listEl  = $("list");
-      const emptyEl = $("empty");
-      const countEl = $("count");
-      const errorEl = $("error");
+      const form      = $("form");
+      const listEl    = $("list");
+      const emptyEl   = $("empty");
+      const countEl   = $("count");
+      const errorEl   = $("error");
+      const submitBtn = form.querySelector('button[type="submit"]');
 
       // 오늘 날짜 표시
       const now = new Date();
@@ -455,41 +442,60 @@
       $("pickup").value =
         `${String(defaultTime.getHours()).padStart(2,"0")}:${String(defaultTime.getMinutes()).padStart(2,"0")}`;
 
-      // 폼 제출
-      form.addEventListener("submit", (e) => {
+      // ── 예약 목록 로드 ──────────────────────────────
+      async function loadReservations() {
+        const { data, error } = await sb
+          .from("reservations")
+          .select("*")
+          .order("time", { ascending: true });
+
+        if (error) {
+          console.warn("예약 로드 오류:", error.message);
+          reservations = [];
+        } else {
+          reservations = data || [];
+        }
+        render();
+      }
+
+      // ── 폼 제출 → Supabase INSERT ───────────────────
+      form.addEventListener("submit", async (e) => {
         e.preventDefault();
         errorEl.classList.remove("show");
 
         const name   = $("name").value.trim();
         const phone  = $("phone").value.trim();
-        const pickup = $("pickup").value;
-        const people = parseInt($("people").value, 10);
+        const time   = $("pickup").value;
+        const count  = parseInt($("people").value, 10);
 
-        // 검증
         if (!name) return showError("이름을 입력해 주세요.");
         if (!phone || !/^[0-9\-\s]{7,}$/.test(phone))
           return showError("연락처를 정확히 입력해 주세요.");
-        if (!pickup) return showError("픽업 시간을 선택해 주세요.");
-        if (!people || people < 1 || people > 20)
+        if (!time) return showError("픽업 시간을 선택해 주세요.");
+        if (!count || count < 1 || count > 20)
           return showError("인원수는 1~20명 사이로 입력해 주세요.");
 
-        // 데이터 추가
-        reservations.push({
-          id: nextId++,
-          name,
-          phone,
-          pickup,
-          people,
-          createdAt: Date.now(),
-        });
+        submitBtn.disabled = true;
+        submitBtn.textContent = "저장 중…";
 
-        // 픽업 시간 순으로 정렬
-        reservations.sort((a, b) => a.pickup.localeCompare(b.pickup));
+        const { data, error } = await sb
+          .from("reservations")
+          .insert({ name, phone, time, count })
+          .select()
+          .single();
 
-        save();
+        submitBtn.disabled = false;
+        submitBtn.textContent = "+ 예약 추가";
+
+        if (error) {
+          showError("저장 실패: " + error.message);
+          return;
+        }
+
+        reservations.push(data);
+        reservations.sort((a, b) => a.time.localeCompare(b.time));
         render();
         form.reset();
-        // 기본값 복원
         $("people").value = 1;
         const t = new Date(Date.now() + 30 * 60 * 1000);
         $("pickup").value =
@@ -502,32 +508,31 @@
         errorEl.classList.add("show");
       }
 
-      // 삭제 (이벤트 위임)
-      listEl.addEventListener("click", (e) => {
+      // ── 삭제 → Supabase DELETE ──────────────────────
+      listEl.addEventListener("click", async (e) => {
         const btn = e.target.closest("button[data-action='delete']");
         if (!btn) return;
-        const id = Number(btn.dataset.id);
-        const idx = reservations.findIndex((r) => r.id === id);
-        if (idx === -1) return;
+        const id = btn.dataset.id;
+        const target = reservations.find((r) => r.id === id);
+        if (!target) return;
 
-        const target = reservations[idx];
-        if (!confirm(`${target.name}님(${formatTime(target.pickup)})의 예약을 삭제할까요?`)) return;
+        if (!confirm(`${target.name}님(${formatTime(target.time)})의 예약을 삭제할까요?`)) return;
 
-        reservations.splice(idx, 1);
-        save();
+        const { error } = await sb
+          .from("reservations")
+          .delete()
+          .eq("id", id);
+
+        if (error) {
+          alert("삭제 실패: " + error.message);
+          return;
+        }
+
+        reservations = reservations.filter((r) => r.id !== id);
         render();
       });
 
-      // 다른 탭에서 변경되면 자동 반영
-      window.addEventListener("storage", (e) => {
-        if (e.key === STORAGE_KEY) {
-          reservations = load();
-          nextId = reservations.reduce((m, r) => Math.max(m, r.id || 0), 0) + 1;
-          render();
-        }
-      });
-
-      // 렌더링
+      // ── 렌더링 ──────────────────────────────────────
       function render() {
         countEl.textContent = `${reservations.length}건`;
 
@@ -542,13 +547,13 @@
           .map(
             (r) => `
               <li class="item">
-                <div class="time-chip" aria-label="픽업 시간 ${escapeHtml(r.pickup)}">
-                  <small>PICKUP</small>${escapeHtml(formatTime(r.pickup))}
+                <div class="time-chip" aria-label="픽업 시간 ${escapeHtml(r.time)}">
+                  <small>PICKUP</small>${escapeHtml(formatTime(r.time))}
                 </div>
                 <div class="meta">
                   <div class="meta-line1">
                     <span class="name">${escapeHtml(r.name)}</span>
-                    <span class="people">${r.people}명</span>
+                    <span class="people">${r.count}명</span>
                   </div>
                   <div class="phone">${escapeHtml(r.phone)}</div>
                 </div>
@@ -565,7 +570,6 @@
       }
 
       function formatTime(hhmm) {
-        // 'HH:MM' → '오전 8:30' 같은 한국어 표기
         if (!hhmm) return "";
         const [hStr, mStr] = hhmm.split(":");
         const h = Number(hStr);
@@ -584,8 +588,8 @@
           .replaceAll("'", "&#39;");
       }
 
-      // 초기 렌더 (빈 상태)
-      render();
+      // 초기 로드
+      loadReservations();
     </script>
   </body>
 </html>
