@@ -79,6 +79,22 @@
         font-size: 12px;
         color: var(--ink-soft);
       }
+      .back-home {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--accent);
+        padding: 5px 12px;
+        border: 1.5px solid var(--accent);
+        border-radius: 999px;
+        transition: background 0.15s, color 0.15s;
+      }
+      .back-home:hover {
+        background: var(--accent);
+        color: #fff;
+      }
 
       /* ── Layout ─────────────────────────────────────── */
       main {
@@ -320,6 +336,7 @@
         <span class="brand">모닝브루</span>
         <span class="title">예약 관리</span>
         <span class="today" id="today" aria-live="polite"></span>
+        <a href="/" class="back-home">← 홈으로</a>
       </div>
     </header>
 
