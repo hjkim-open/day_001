@@ -80,6 +80,20 @@
         font-size: 12px;
         color: var(--ink-soft);
       }
+      .db-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: #ecf5ef;
+        color: var(--accent-strong);
+        letter-spacing: 0.02em;
+      }
+      .db-badge.error { background: var(--danger-soft); color: var(--danger); }
+      .db-badge::before { content: "●"; font-size: 8px; }
       .back-home {
         display: inline-flex;
         align-items: center;
@@ -337,6 +351,7 @@
         <span class="brand">모닝브루</span>
         <span class="title">예약 관리</span>
         <span class="today" id="today" aria-live="polite"></span>
+        <span class="db-badge" id="db-badge">DB 연결 중…</span>
         <a href="/" class="back-home">← 홈으로</a>
       </div>
     </header>
@@ -415,11 +430,17 @@
       // ─────────────────────────────────────────────────
       // Supabase 클라이언트
       // ─────────────────────────────────────────────────
-      const { createClient } = supabase;
-      const sb = createClient(
-        "https://uzrnemzcmfysdmvzxycb.supabase.co",
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV6cm5lbXpjbWZ5c2Rtdnp4eWNiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5ODQ1MjksImV4cCI6MjA5NzU2MDUyOX0.1l_-u5_4JOWKUczEC9NGp7GzFEyQ4wCOCo_Zp26S-b4"
-      );
+      let sb = null;
+      try {
+        const { createClient } = window.supabase;
+        sb = createClient(
+          "https://uzrnemzcmfysdmvzxycb.supabase.co",
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV6cm5lbXpjbWZ5c2Rtdnp4eWNiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5ODQ1MjksImV4cCI6MjA5NzU2MDUyOX0.1l_-u5_4JOWKUczEC9NGp7GzFEyQ4wCOCo_Zp26S-b4"
+        );
+        console.log("✅ Supabase 클라이언트 초기화 성공");
+      } catch (err) {
+        console.error("❌ Supabase 초기화 실패:", err);
+      }
 
       let reservations = [];
 
@@ -442,8 +463,21 @@
       $("pickup").value =
         `${String(defaultTime.getHours()).padStart(2,"0")}:${String(defaultTime.getMinutes()).padStart(2,"0")}`;
 
+      // ── DB 배지 업데이트 ────────────────────────────
+      const dbBadge = $("db-badge");
+      function setDbBadge(ok, label) {
+        dbBadge.textContent = label;
+        dbBadge.className = "db-badge" + (ok ? "" : " error");
+      }
+
+      if (!sb) {
+        setDbBadge(false, "DB 연결 실패");
+      }
+
       // ── 예약 목록 로드 ──────────────────────────────
       async function loadReservations() {
+        if (!sb) { render(); return; }
+
         const { data, error } = await sb
           .from("reservations")
           .select("*")
@@ -451,8 +485,10 @@
 
         if (error) {
           console.warn("예약 로드 오류:", error.message);
+          setDbBadge(false, "DB 오류: " + error.message);
           reservations = [];
         } else {
+          setDbBadge(true, "Supabase 연결됨");
           reservations = data || [];
         }
         render();
@@ -462,6 +498,11 @@
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
         errorEl.classList.remove("show");
+
+        if (!sb) {
+          showError("Supabase 연결 실패 — 페이지를 새로고침(Ctrl+Shift+R)해 주세요.");
+          return;
+        }
 
         const name   = $("name").value.trim();
         const phone  = $("phone").value.trim();
@@ -477,6 +518,7 @@
 
         submitBtn.disabled = true;
         submitBtn.textContent = "저장 중…";
+        console.log("📤 INSERT 시도:", { name, phone, time, count });
 
         const { data, error } = await sb
           .from("reservations")
@@ -488,9 +530,12 @@
         submitBtn.textContent = "+ 예약 추가";
 
         if (error) {
+          console.error("❌ INSERT 실패:", error);
           showError("저장 실패: " + error.message);
+          setDbBadge(false, "저장 실패: " + error.message);
           return;
         }
+        console.log("✅ INSERT 성공:", data);
 
         reservations.push(data);
         reservations.sort((a, b) => a.time.localeCompare(b.time));
