@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>모닝브루 · 관리자 대시보드</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <style>
+      :root {
+        --bg: #f4f6f4;
+        --surface: #ffffff;
+        --ink: #1f1a16;
+        --ink-soft: #5b524b;
+        --line: #e4ece6;
+        --accent: #2f7a4f;
+        --accent-strong: #226039;
+        --accent-pale: #ecf5ef;
+        --brand: #6b4a2b;
+        --danger: #c14a3a;
+        --danger-soft: #fbe9e6;
+        --status-h: 28px;
+      }
+
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+
+      html, body {
+        background: var(--bg);
+        color: var(--ink);
+        font-family: "Pretendard Variable", "Pretendard", -apple-system,
+          BlinkMacSystemFont, sans-serif;
+        font-size: 15px;
+        line-height: 1.55;
+        -webkit-font-smoothing: antialiased;
+        min-height: 100dvh;
+      }
+
+      /* ── 헤더 ───────────────────────────────────────── */
+      header {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        background: var(--accent-strong);
+        color: #fff;
+        padding: 0 24px;
+        height: 56px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        box-shadow: 0 1px 4px rgba(0,0,0,.18);
+      }
+      .header-brand {
+        font-weight: 800;
+        font-size: 17px;
+        letter-spacing: -0.02em;
+      }
+      .header-brand::before { content: "☕ "; }
+      .header-divider {
+        width: 1px;
+        height: 18px;
+        background: rgba(255,255,255,.3);
+      }
+      .header-title {
+        font-size: 13px;
+        font-weight: 700;
+        opacity: .85;
+        letter-spacing: .02em;
+        text-transform: uppercase;
+      }
+      .header-right {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .header-date {
+        font-size: 12px;
+        opacity: .75;
+      }
+      .btn-refresh {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 6px 14px;
+        border-radius: 999px;
+        background: rgba(255,255,255,.15);
+        border: 1px solid rgba(255,255,255,.25);
+        color: #fff;
+        font-size: 12px;
+        font-weight: 700;
+        font-family: inherit;
+        cursor: pointer;
+        transition: background .15s;
+      }
+      .btn-refresh:hover { background: rgba(255,255,255,.25); }
+      .btn-refresh.spinning::before { content: "⟳ "; animation: spin .6s linear infinite; }
+      @keyframes spin { to { transform: rotate(360deg); } }
+
+      /* ── 컨테이너 ──────────────────────────────────── */
+      .container {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 24px 20px calc(var(--status-h) + 24px);
+      }
+
+      /* ── 통계 카드 ─────────────────────────────────── */
+      .stats-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+        margin-bottom: 20px;
+      }
+      @media (max-width: 600px) {
+        .stats-row { grid-template-columns: 1fr 1fr; }
+        .stat-card:last-child { grid-column: span 2; }
+      }
+      .stat-card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 18px 20px;
+      }
+      .stat-label {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+        color: var(--ink-soft);
+        margin-bottom: 6px;
+      }
+      .stat-value {
+        font-size: 32px;
+        font-weight: 900;
+        letter-spacing: -0.03em;
+        color: var(--accent-strong);
+        line-height: 1;
+      }
+      .stat-unit {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--ink-soft);
+        margin-left: 3px;
+      }
+
+      /* ── 예약 테이블 ───────────────────────────────── */
+      .table-card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        overflow: hidden;
+      }
+      .table-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 18px 20px 14px;
+        border-bottom: 1px solid var(--line);
+      }
+      .table-title {
+        font-size: 16px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+      }
+      .filter-row {
+        display: flex;
+        gap: 8px;
+      }
+      .filter-btn {
+        padding: 5px 14px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: transparent;
+        font-size: 12px;
+        font-weight: 700;
+        font-family: inherit;
+        color: var(--ink-soft);
+        cursor: pointer;
+        transition: all .15s;
+      }
+      .filter-btn.active {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #fff;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+      thead th {
+        padding: 10px 16px;
+        text-align: left;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .05em;
+        text-transform: uppercase;
+        color: var(--ink-soft);
+        background: #fafcfa;
+        border-bottom: 1px solid var(--line);
+      }
+      tbody tr {
+        border-bottom: 1px solid var(--line);
+        transition: background .1s;
+      }
+      tbody tr:last-child { border-bottom: none; }
+      tbody tr:hover { background: var(--accent-pale); }
+      td {
+        padding: 13px 16px;
+        vertical-align: middle;
+      }
+      .td-time {
+        font-weight: 800;
+        color: var(--brand);
+        white-space: nowrap;
+        font-size: 15px;
+      }
+      .td-name { font-weight: 700; }
+      .td-phone { color: var(--ink-soft); font-size: 13px; }
+      .td-count {
+        font-weight: 700;
+        color: var(--accent-strong);
+      }
+      .td-created { color: var(--ink-soft); font-size: 12px; white-space: nowrap; }
+      .td-action { text-align: right; }
+      .btn-del {
+        padding: 5px 12px;
+        border-radius: 8px;
+        border: 1px solid transparent;
+        background: transparent;
+        color: var(--danger);
+        font-size: 12px;
+        font-weight: 700;
+        font-family: inherit;
+        cursor: pointer;
+        transition: background .15s;
+      }
+      .btn-del:hover { background: var(--danger-soft); }
+
+      /* ── 빈 상태 ────────────────────────────────────── */
+      .empty-row td {
+        padding: 48px 20px;
+        text-align: center;
+        color: var(--ink-soft);
+        font-size: 14px;
+      }
+      .empty-row .emoji { font-size: 32px; display: block; margin-bottom: 8px; }
+
+      /* ── 로딩 오버레이 ──────────────────────────────── */
+      .loading-row td {
+        padding: 40px;
+        text-align: center;
+        color: var(--ink-soft);
+        font-size: 13px;
+      }
+
+      /* ── 하단 Status Bar ────────────────────────────── */
+      .status-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: var(--status-h);
+        background: #1a3d2b;
+        color: rgba(255,255,255,.85);
+        display: flex;
+        align-items: center;
+        padding: 0 16px;
+        gap: 0;
+        font-size: 11.5px;
+        font-weight: 600;
+        letter-spacing: .01em;
+        z-index: 100;
+        user-select: none;
+      }
+      .sb-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        padding: 0 12px;
+        height: 100%;
+        border-right: 1px solid rgba(255,255,255,.1);
+        white-space: nowrap;
+        cursor: default;
+        transition: background .15s;
+      }
+      .sb-item:hover { background: rgba(255,255,255,.07); }
+      .sb-item:first-child { padding-left: 4px; }
+      .sb-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #4caf7a;
+        flex-shrink: 0;
+      }
+      .sb-dot.offline { background: #e57373; }
+      .sb-dot.loading { background: #ffd54f; animation: pulse .8s ease-in-out infinite alternate; }
+      @keyframes pulse { from { opacity: .4; } to { opacity: 1; } }
+      .sb-right {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+      }
+      .sb-item.right { border-right: none; border-left: 1px solid rgba(255,255,255,.1); }
+    </style>
+  </head>
+  <body>
+    <!-- ── 헤더 ─────────────────────────────────────── -->
+    <header>
+      <span class="header-brand">모닝브루</span>
+      <div class="header-divider"></div>
+      <span class="header-title">Admin Dashboard</span>
+      <div class="header-right">
+        <span class="header-date" id="header-date"></span>
+        <button class="btn-refresh" id="btn-refresh" onclick="refresh()">↻ 새로고침</button>
+      </div>
+    </header>
+
+    <!-- ── 본문 ─────────────────────────────────────── -->
+    <div class="container">
+      <!-- 통계 카드 -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">오늘 예약</div>
+          <div class="stat-value" id="stat-today">—<span class="stat-unit">건</span></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">총 인원</div>
+          <div class="stat-value" id="stat-people">—<span class="stat-unit">명</span></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">전체 예약</div>
+          <div class="stat-value" id="stat-total">—<span class="stat-unit">건</span></div>
+        </div>
+      </div>
+
+      <!-- 예약 테이블 -->
+      <div class="table-card">
+        <div class="table-head">
+          <span class="table-title">예약 목록</span>
+          <div class="filter-row">
+            <button class="filter-btn active" onclick="setFilter('today', this)">오늘</button>
+            <button class="filter-btn" onclick="setFilter('all', this)">전체</button>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>픽업 시간</th>
+              <th>이름</th>
+              <th>연락처</th>
+              <th>인원</th>
+              <th>등록 시각</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── 하단 Status Bar ──────────────────────────── -->
+    <div class="status-bar">
+      <div class="sb-item" id="sb-conn">
+        <span class="sb-dot loading" id="sb-dot"></span>
+        <span id="sb-conn-text">연결 중…</span>
+      </div>
+      <div class="sb-item">
+        <span>예약</span>
+        <strong id="sb-rsv-count">—</strong>건
+      </div>
+      <div class="sb-item">
+        <span>총 인원</span>
+        <strong id="sb-rsv-people">—</strong>명
+      </div>
+      <div class="sb-right">
+        <div class="sb-item right">
+          갱신 <strong id="sb-updated">—</strong>
+        </div>
+        <div class="sb-item right">
+          모닝브루 Admin v1.0
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // ── Supabase ─────────────────────────────────────
+      let sb = null;
+      try {
+        const { createClient } = window.supabase;
+        sb = createClient(
+          "https://uzrnemzcmfysdmvzxycb.supabase.co",
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV6cm5lbXpjbWZ5c2Rtdnp4eWNiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5ODQ1MjksImV4cCI6MjA5NzU2MDUyOX0.1l_-u5_4JOWKUczEC9NGp7GzFEyQ4wCOCo_Zp26S-b4"
+        );
+      } catch (e) {
+        console.error("Supabase 초기화 실패:", e);
+        setStatus(false, "Supabase 초기화 실패");
+      }
+
+      // ── 상태 ─────────────────────────────────────────
+      let allData = [];
+      let currentFilter = "today";
+      const todayStr = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
+
+      // ── 헤더 날짜 ───────────────────────────────────
+      const now = new Date();
+      const week = ["일", "월", "화", "수", "목", "금", "토"][now.getDay()];
+      document.getElementById("header-date").textContent =
+        `${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,"0")}.${String(now.getDate()).padStart(2,"0")} (${week})`;
+
+      // ── Status Bar 헬퍼 ─────────────────────────────
+      function setStatus(online, label) {
+        const dot  = document.getElementById("sb-dot");
+        const text = document.getElementById("sb-conn-text");
+        dot.className  = "sb-dot" + (online ? "" : " offline");
+        text.textContent = label;
+      }
+
+      function setLoading(on) {
+        const dot = document.getElementById("sb-dot");
+        if (on) dot.className = "sb-dot loading";
+      }
+
+      function updateStatusBar() {
+        const filtered = filtered_rows();
+        document.getElementById("sb-rsv-count").textContent  = filtered.length;
+        document.getElementById("sb-rsv-people").textContent = filtered.reduce((s, r) => s + (r.count || 0), 0);
+        const t = new Date();
+        document.getElementById("sb-updated").textContent =
+          `${String(t.getHours()).padStart(2,"0")}:${String(t.getMinutes()).padStart(2,"0")}:${String(t.getSeconds()).padStart(2,"0")}`;
+      }
+
+      function updateStats() {
+        const todayRows = allData.filter(r => r.created_at?.startsWith(todayStr));
+        document.getElementById("stat-today").innerHTML  =
+          `${todayRows.length}<span class="stat-unit">건</span>`;
+        document.getElementById("stat-people").innerHTML =
+          `${todayRows.reduce((s,r) => s+(r.count||0), 0)}<span class="stat-unit">명</span>`;
+        document.getElementById("stat-total").innerHTML  =
+          `${allData.length}<span class="stat-unit">건</span>`;
+      }
+
+      // ── 필터 ─────────────────────────────────────────
+      function filtered_rows() {
+        if (currentFilter === "today") {
+          return allData.filter(r => r.created_at?.startsWith(todayStr));
+        }
+        return allData;
+      }
+
+      function setFilter(f, btn) {
+        currentFilter = f;
+        document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        renderTable();
+        updateStatusBar();
+      }
+
+      // ── 로드 ─────────────────────────────────────────
+      async function load() {
+        if (!sb) { setStatus(false, "Supabase 연결 안됨"); renderTable(); return; }
+        setLoading(true);
+
+        const { data, error } = await sb
+          .from("reservations")
+          .select("*")
+          .order("time", { ascending: true });
+
+        if (error) {
+          console.error("로드 실패:", error);
+          setStatus(false, "오류: " + error.message);
+          renderTable();
+          return;
+        }
+
+        allData = data || [];
+        setStatus(true, "Supabase 연결됨");
+        renderTable();
+        updateStats();
+        updateStatusBar();
+      }
+
+      function refresh() {
+        const btn = document.getElementById("btn-refresh");
+        btn.classList.add("spinning");
+        load().finally(() => btn.classList.remove("spinning"));
+      }
+
+      // ── 삭제 ─────────────────────────────────────────
+      async function deleteRow(id, name) {
+        if (!confirm(`${name}님의 예약을 삭제할까요?`)) return;
+        const { error } = await sb.from("reservations").delete().eq("id", id);
+        if (error) { alert("삭제 실패: " + error.message); return; }
+        allData = allData.filter(r => r.id !== id);
+        renderTable();
+        updateStats();
+        updateStatusBar();
+      }
+
+      // ── 렌더 ─────────────────────────────────────────
+      function renderTable() {
+        const rows  = filtered_rows();
+        const tbody = document.getElementById("tbody");
+
+        if (rows.length === 0) {
+          tbody.innerHTML = `
+            <tr class="empty-row">
+              <td colspan="6">
+                <span class="emoji">☕</span>
+                ${currentFilter === "today" ? "오늘 등록된 예약이 없습니다." : "예약이 없습니다."}
+              </td>
+            </tr>`;
+          return;
+        }
+
+        tbody.innerHTML = rows.map(r => `
+          <tr>
+            <td class="td-time">${formatTime(r.time)}</td>
+            <td class="td-name">${esc(r.name)}</td>
+            <td class="td-phone">${esc(r.phone)}</td>
+            <td class="td-count">${r.count}명</td>
+            <td class="td-created">${formatDatetime(r.created_at)}</td>
+            <td class="td-action">
+              <button class="btn-del" onclick="deleteRow('${r.id}','${esc(r.name)}')">삭제</button>
+            </td>
+          </tr>`).join("");
+      }
+
+      // ── 유틸 ─────────────────────────────────────────
+      function formatTime(hhmm) {
+        if (!hhmm) return "—";
+        const [h, m] = hhmm.split(":").map(Number);
+        const p = h < 12 ? "오전" : "오후";
+        const h12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
+        return `${p} ${h12}:${String(m).padStart(2,"0")}`;
+      }
+
+      function formatDatetime(iso) {
+        if (!iso) return "—";
+        const d = new Date(iso);
+        return `${String(d.getMonth()+1).padStart(2,"0")}.${String(d.getDate()).padStart(2,"0")} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
+      }
+
+      function esc(s) {
+        return String(s||"")
+          .replaceAll("&","&amp;").replaceAll("<","&lt;")
+          .replaceAll(">","&gt;").replaceAll('"',"&quot;");
+      }
+
+      // ── 초기화 + 30초 자동 갱신 ────────────────────
+      load();
+      setInterval(load, 30_000);
+    </script>
+  </body>
+</html>
